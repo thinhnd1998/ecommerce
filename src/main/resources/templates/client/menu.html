@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+  <style>
+    .danhMuc {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #f1f1f1;
+      min-width: 160px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1;
+    }
+
+    .dropdown-content a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .dropdown-content a:hover {background-color: #ddd;}
+
+    .danhMuc:hover .dropdown-content {display: block;}
+
+    .danhMuc:hover .dropbtn {background-color: #3e8e41;}
+
+    .search-container {
+      float: right;
+    }
+
+    .search-container button {
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body th:fragment="menu">
+<div class="mainmenu-area">
+  <div class="container">
+    <div class="row">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a th:href="@{/trang-chu}">Trang chủ</a></li>
+          <li class="danhMuc">
+            <a class="dropbtn" href="#">Danh mục</a>
+            <div class="dropdown-content">
+              <th:block th:each="d : ${lstDanhMuc}">
+                <a th:href="@{'/trang-chu/danhmuc/' + ${d.id}}">[[${d.tenDanhMuc}]]</a>
+              </th:block>
+            </div>
+          </li>
+          <li class="danhMuc">
+            <a class="dropbtn" href="#">Thương hiệu</a>
+            <div class="dropdown-content">
+              <th:block th:each="d : ${lstThuongHieu}">
+                <a th:href="@{'/trang-chu/thuonghieu/' + ${d.id}}">[[${d.tenThuongHieu}]]</a>
+              </th:block>
+            </div>
+          </li>
+          <li><a th:href="@{/gio-hang/view}">Giỏ hàng</a></li>
+          <th:block th:if="${#session.getAttribute('userOnline1') != null}">
+            <li><a th:href="@{'/trang-chu/donhang/' + ${#session.getAttribute('userId')}}">Thông tin đơn hàng</a></li>
+          </th:block>
+          <li><a href="#">Liên hệ</a></li>
+        </ul>
+        <div class="search-container">
+          <form action="#" th:action="@{/trang-chu/timkiem}" th:object="${sanPhamSearch}" method="post">
+            <input type="text" placeholder="Tìm kiếm.." id="tuKhoa" name="tuKhoa" th:field="*{tuKhoa}">
+            <button type="submit"><i class="fa fa-search"></i></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> <!-- End mainmenu area -->
+</body>
+</html>

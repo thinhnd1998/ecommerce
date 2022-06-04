@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý thông tin danh mục</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.validate.js}"></script>
+
+    <script type="text/javascript">
+        // $(document).ready(function () {
+        //     layDanhSachDanhMuc();
+        // });
+
+        function layDanhSachDanhMuc() {
+            $.ajax({
+                type: "GET",
+                url: "/api/danhmuc/all",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (result) {
+
+                    var thongTin = "";
+                    $.each(result, function (index, danhMuc) {
+                        thongTin += "<tr>";
+                        thongTin += "<td>" + danhMuc.id + "</td>";
+                        thongTin += "<td>" + danhMuc.tenDanhMuc + "</td>";
+                        
+                        var sua = "suaThongTin('" + danhMuc.id + "')";
+                        var xoa = "xoaThongTin('" + danhMuc.id + "')";
+                        thongTin += "<td><a data-toggle=\"modal\" data-target=\"#modalDanhMuc\" href='#' onclick=\"" + sua + "\" title='Sửa danh mục'><i class='fas fa-edit'></i></a>&nbsp;";
+                        thongTin += "<a href='#' data-toggle=\"modal\" data-target=\"#modalXoa\" title='Xóa danh mục' onclick=\"" + xoa + "\"><i class='fas fa-trash-alt'></i></a></td>";
+                        thongTin += "</tr>";
+                    });
+
+                    $("#dsDanhMuc").append(thongTin);
+                }
+            });
+        }
+
+        function hienThiThemMoi()
+        {
+            $("#modalTitle").text("Thêm mới thông tin danh mục");
+            $("#hDanhMucId").val("");
+            $("#tenDanhMuc").val("");
+            $("#tenDanhMuc").focus();
+        }
+        function themMoiHoacCapNhat() {
+            //alert("Hello");
+            let form = $("#modalDanhMuc").validate({
+                rules: {
+                    tenDanhMuc: "required",
+                },
+                messages: {
+                    tenDanhMuc: "Bạn cần phải nhập tên danh mục",
+                },
+                submitHandler: function () {
+                    if(form.valid()) {
+                        xuLyThemMoi();
+                    }
+                }
+
+            });
+        }
+
+        function xuLyThemMoi() {
+            //Lấy thông tin trên giao diện
+            var danhMucId = $("#hDanhMucId").val();
+            danhMucId = parseInt(danhMucId);
+
+            var urlPost = '/api/danhmuc/add';
+            var methodType = "POST";
+            //TH sửa
+            if (danhMucId > 0) {
+                urlPost = '/api/danhmuc/' + danhMucId;
+                methodType = "PUT";
+            }
+
+            var tenDM = $("#tenDanhMuc").val();
+
+            //Khai báo mảng
+            var formData = {}
+            formData["tenDanhMuc"] = tenDM;
+
+            console.log("Tên danh mục: " + tenDM);
+
+            $.ajax({
+                url: urlPost,
+                contentType: "application/json; charset=utf-8;",
+                dataType: "json",
+                data: JSON.stringify(formData),
+                type: methodType,
+                success: function (data) {
+                    //alert("Hello");
+                    if (data.id != null) {
+
+                        $("#modalDanhMuc").modal("hide")
+
+                        //Reload lại trang
+                        window.location.reload();
+                    } else {
+                        $('#tile-body').nextAll(".spanError").remove();
+                        $('#tile-body').after('<div class="alert alert-dismissible alert-danger spanError">' + data.name + '</div>')
+
+                    }
+
+                },
+                error: function (error) {
+                    alert("Có lỗi xảy ra " + error.name);
+                }
+
+            });
+        }
+
+        function suaThongTin(danhMucId) {
+            //Lấy thông tin chi tiết của người dùng cần sửa
+            thongTinChiTiet(danhMucId);
+        }
+
+        function thongTinChiTiet(danhMucId) {
+            $.ajax({
+                type: "GET",
+                url: "/api/danhmuc/" + danhMucId,
+                data: {
+                    id: danhMucId
+                },
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (data) {
+                    //alert(data.hoTen);
+                    //Hiển thị lên giao diện
+                    $("#modalTitle").text("Sửa thông tin danh mục");
+                    $("#hDanhMucId").val(data.id);
+                    $("#tenDanhMuc").val(data.tenDanhMuc);
+                }
+            });
+        }
+
+        function xoaThongTin(danhMucId) {
+
+            $("#hDanhMucId").val(danhMucId);
+        };
+
+        function thucHienXoa() {
+            var danhMucId = $("#hDanhMucId").val();
+            danhMucId = parseInt(danhMucId);
+
+            $.ajax({
+                url: '/api/danhmuc/' + danhMucId,
+                contentType: "application/json; charset=utf-8;",
+                dataType: "json",
+                type: "DELETE",
+                success: function (data) {
+                    //alert("Hello");
+                    if (data.name != null) {
+
+                        $("#modalXoa").modal("hide")
+
+                        //Reload lại trang
+                        window.location.reload();
+                    } else {
+                        $('#title-delete').nextAll(".spanError").remove();
+                        $('#title-delete').after('<div class="alert alert-dismissible alert-danger spanError">' + data.name + '</div>')
+
+                    }
+
+                },
+                error: function (error) {
+                    alert("Có lỗi xảy ra " + error.name);
+                }
+            });
+        }
+    </script>
+</head>
+<body layout:fragment="content">
+    <div class="page-breadcrumb bg-white">
+        <div class="row align-items-center">
+            <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+                <h4 class="page-title">Quản Lý Danh Mục</h4>
+            </div>
+            <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+                <div class="d-md-flex">
+                    <a th:if="${#session.getAttribute('QL_DANHMUC_THEM') == 1}" href="#" onclick="hienThiThemMoi()" data-toggle="modal"
+                       data-target="#modalDanhMuc"
+                       class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Thêm mới</a>
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 1em">
+            <form action="#" th:action="@{/call-api/danhmuc/timkiem}" th:object="${danhMucSearch}" method="post">
+                <div class="input-group">
+
+                    <input placeholder="Tìm kiếm" type="search" id="form1" class="form-control" th:field="*{tuKhoa}"/>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Bread crumb and right sidebar toggle -->
+    <!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- Container fluid  -->
+    <!-- ============================================================== -->
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="white-box">
+                    <h3 class="box-title">Quản Lý Danh Mục</h3>
+                    <div class="table-responsive">
+                        <table class="table text-nowrap">
+                            <thead>
+                            <tr>
+                                <th class="border-top-0">ID</th>
+                                <th class="border-top-0">Tên Danh Mục</th>
+                                <th class="border-top-0"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="dm : ${lstDanhMuc}">
+                                    <td>[[${dm.id}]]</td>
+                                    <td>[[${dm.tenDanhMuc}]]</td>
+                                    <td>
+                                        <a th:if="${#session.getAttribute('QL_DANHMUC_SUA') == 1}" data-toggle="modal" data-target="#modalDanhMuc" href='#' th:attr="onclick=|suaThongTin(${dm.id})|" title='Sửa danh mục'><i class='fas fa-edit'></i></a>
+                                        &nbsp;
+                                        <a th:if="${#session.getAttribute('QL_DANHMUC_XOA') == 1}" href='#' data-toggle="modal" data-target="#modalXoa" title='Xóa danh mục' th:attr="onclick=|xoaThongTin(${dm.id})|"><i class='fas fa-trash-alt'></i></a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End PAge Content -->
+        <!-- ============================================================== -->
+        <!-- ============================================================== -->
+        <!-- Right sidebar -->
+        <!-- ============================================================== -->
+        <!-- .right-sidebar -->
+        <!-- ============================================================== -->
+        <!-- End Right sidebar -->
+        <!-- ============================================================== -->
+    </div>
+
+    <form id="modalDanhMuc" method="post" class="modal fade">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">
+                        Thêm mới danh mục</h5>
+                    <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="tile-body" id="tile-body">
+                        <div class="form-group row">
+                            <label class="col-md-3">
+                                Tên danh mục:
+                            </label>
+                            <div class="col-md-9">
+                                <input type="text" id="tenDanhMuc" name="tenDanhMuc" class="form-control"
+                                       placeholder="Nhập tên danh mục"/>
+                                <input type="hidden" id="hDanhMucId" name="hDanhMucId">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" onclick="themMoiHoacCapNhat()"
+                            class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Cập nhật</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <fieldset id="modalXoa"  class="modal fade">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Thông báo xoá</h5>
+                    <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="tile-body" id="title-delete">
+
+                        <h3>Bạn có chắc chắn muốn xoá thông tin này không ?  </h3>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" onclick="thucHienXoa()" class="btn btn-primary">Đồng ý</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+</body>
+</html>

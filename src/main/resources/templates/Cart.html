@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Giỏ hàng</title>
+    <style>
+        .clearbtn {
+            background: none repeat scroll 0 0 #5a88ca;
+            border: medium none;
+            color: #fff;
+            padding: 11px 20px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body layout:fragment="content">
+<div class="product-big-title-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-bit-title text-center">
+                    <h2>Giỏ hàng</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> <!-- End Page title area -->
+
+
+<div class="single-product-area">
+    <div class="zigzag-bottom"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="single-sidebar">
+                    <h2 class="sidebar-title">Tìm kiếm sản phẩm</h2>
+                    <form action="#" th:action="@{/trang-chu/timkiem}" th:object="${sanPhamClientSearch}" method="post">
+                        <input type="text" placeholder="Tìm kiếm.." id="tuKhoa" name="tuKhoa">
+                        <button type="submit"><i class="fa fa-search"></i></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="product-content-right">
+                    <div class="woocommerce">
+                            <table cellspacing="0" class="shop_table cart">
+                                <thead>
+                                    <tr>
+                                        <th class="product-remove">&nbsp;</th>
+                                        <th class="product-thumbnail">&nbsp;</th>
+                                        <th class="product-name">Tên sản phẩm</th>
+                                        <th class="product-price">Giá</th>
+                                        <th class="product-quantity">Số lượng</th>
+                                        <th class="product-subtotal">Tổng tiền</th>
+                                    </tr>
+                                </thead>
+
+                                <tbody>
+                                    <th:block th:each="sp : ${gioHang}">
+                                        <form action="/gio-hang/update" method="post">
+
+                                            <input type="hidden" name="id" th:value="${sp.maSanPham}"/>
+                                            <tr class="cart_item">
+                                                <td class="product-remove">
+                                                    <a title="Xóa sản phẩm khỏi giỏ hàng" class="remove" th:href="@{'del/' + ${sp.maSanPham}}">×</a>
+                                                </td>
+
+                                                <td class="product-thumbnail">
+                                                    <a th:href="@{'/trang-chu/chi-tiet/' + ${sp.maSanPham}}"><img width="145" height="145" alt="poster_1_up" class="shop_thumbnail" th:src="@{'/images/' + ${sp.anhSanPham}}"></a>
+                                                </td>
+
+                                                <td class="product-name">
+                                                    <a th:href="@{'/trang-chu/chi-tiet/' + ${sp.maSanPham}}">[[${sp.tenSanPham}]]</a>
+                                                </td>
+
+                                                <td class="product-price">
+                                                    <span class="amount" th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'COMMA', 2, 'POINT')}">[[${sp.giaBan}]]</span>
+                                                </td>
+
+                                                <td class="product-quantity">
+                                                    <div class="quantity buttons_added">
+                                                        <ul class="pagination" style="display: flex">
+                                                            <li class="page-item">
+                                                                <a href="" class="page-link minusButton" th:pid="${sp.maSanPham}"><b>-</b></a>
+                                                            </li>
+                                                            <li class="page-item">
+                                                                <input type="text" name="qty" th:id="'quantity' + ${sp.maSanPham}" th:value="${sp.soLuong}" class="form-control text-center" onkeydown="return false;" onblur="this.form.submit()" style="max-width: 55px" title="Qty"/>
+                                                            </li>
+                                                            <li class="page-item">
+                                                                <a href="" class="page-link plusButton" th:pid="${sp.maSanPham}"><b>+</b></a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </td>
+
+                                                <td class="product-subtotal">
+                                                        <span class="amount" th:text="${#numbers.formatDecimal(sp.giaBan*sp.soLuong, 0, 'COMMA', 0, 'POINT')}">[[${sp.giaBan*sp.soLuong}]]</span>
+                                                </td>
+                                            </tr>
+                                        </form>
+                                    </th:block>
+
+                                    <tr>
+                                        <td class="actions" colspan="6">
+                                            <a class="clearbtn" th:href="@{clear}">Clear</a>
+                                            <a class="clearbtn" th:href="@{/trang-chu}">Mua tiếp</a>
+                                            <a class="clearbtn" th:href="@{checkout}">Thanh toán</a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
+                        <div class="cart-collaterals">
+
+                            <div class="cart_totals ">
+                                <h2>Cart Totals</h2>
+
+                                <table cellspacing="0">
+                                    <tbody>
+                                        <tr class="order-total">
+                                            <th>Tổng tiền</th>
+                                            <td><strong><span th:text="${#numbers.formatDecimal(tongTien, 0, 'COMMA', 0, 'POINT')}" class="amount">[[${tongTien}]]</span></strong> </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+<script>
+    $('#submitBtn').click(function(){
+        $('form').each(function(){
+            $(this).submit();
+        });
+    });
+</script>
+</body>
+</html>

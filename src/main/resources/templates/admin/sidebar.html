@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<aside class="left-sidebar" data-sidebarbg="skin6" th:fragment="sidebar">
+    <!-- Sidebar scroll-->
+    <div class="scroll-sidebar">
+        <!-- Sidebar navigation-->
+        <nav class="sidebar-nav">
+            <ul id="sidebarnav">
+                <!-- User Profile-->
+                <li class="sidebar-item" th:if="${#session.getAttribute('QL_SANPHAM_XEM') == 1}">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/sanpham/all}"
+                       aria-expanded="false">
+                        <i class="fa fa-table" aria-hidden="true"></i>
+                        <span class="hide-menu">Quản Lý Sản Phẩm</span>
+                    </a>
+                </li>
+<!--                <li class="sidebar-item">-->
+<!--                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/anhsp/all}"-->
+<!--                       aria-expanded="false">-->
+<!--                        <i class="fa fa-table" aria-hidden="true"></i>-->
+<!--                        <span class="hide-menu">Quản Lý Ảnh Sản Phẩm</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+                <li class="sidebar-item" th:if="${#session.getAttribute('QL_DONHANG_XEM') == 1}">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/donhang/all}"
+                       aria-expanded="false">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <span class="hide-menu">Quản Lý Đơn Hàng</span>
+                    </a>
+                </li>
+<!--                <li class="sidebar-item">-->
+<!--                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/donhangct/all}"-->
+<!--                       aria-expanded="false">-->
+<!--                        <i class="fa fa-table" aria-hidden="true"></i>-->
+<!--                        <span class="hide-menu">Quản Lý Chi Tiết Đơn Hàng</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+
+                <li class="sidebar-item" th:if="${#session.getAttribute('QL_THUONGHIEU_XEM') == 1}">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/thuonghieu/all}"
+                       aria-expanded="false">
+                        <i class="fas fa-globe" aria-hidden="true"></i>
+                        <span class="hide-menu">Quản Lý Thương Hiệu</span>
+                    </a>
+                </li>
+                <li class="sidebar-item" th:if="${#session.getAttribute('QL_DANHMUC_XEM') == 1}">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/danhmuc/all}"
+                       aria-expanded="false">
+                        <i class="fas fa-align-justify" aria-hidden="true"></i>
+                        <span class="hide-menu">Quản Lý Danh Mục</span>
+                    </a>
+                </li>
+                <li class="sidebar-item" th:if="${#session.getAttribute('QL_NGUOIDUNG_XEM') == 1}">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/nguoidung/all}"
+                       aria-expanded="false">
+                        <i class="fas fa-user" aria-hidden="true"></i>
+                        <span class="hide-menu">Quản Lý Người Dùng</span>
+                    </a>
+                </li>
+<!--                <li class="sidebar-item">-->
+<!--                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/khachhang/all}"-->
+<!--                       aria-expanded="false">-->
+<!--                        <i class="fa fa-table" aria-hidden="true"></i>-->
+<!--                        <span class="hide-menu">Quản Lý Khách Hàng</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+<!--                <li class="sidebar-item">-->
+<!--                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/nhanvien/all}"-->
+<!--                       aria-expanded="false">-->
+<!--                        <i class="fa fa-table" aria-hidden="true"></i>-->
+<!--                        <span class="hide-menu">Quản Lý Nhân Viên</span>-->
+<!--                    </a>-->
+<!--                </li>-->
+                <li class="sidebar-item" th:if="${#session.getAttribute('QL_VAITRO_XEM') == 1}">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/vaitro/all}"
+                       aria-expanded="false">
+                        <i class="fas fa-key" aria-hidden="true"></i>
+                        <span class="hide-menu">Quản Lý Vai Trò</span>
+                    </a>
+                </li>
+                <li class="sidebar-item" th:if="${#session.getAttribute('QL_PHANQUYEN_XEM') == 1}">
+                    <a class="sidebar-link waves-effect waves-dark sidebar-link" th:href="@{/call-api/phanquyen/view}"
+                       aria-expanded="false">
+                        <i class="fas fa-unlock" aria-hidden="true"></i>
+                        <span class="hide-menu">Phân Quyền</span>
+                    </a>
+                </li>
+
+            </ul>
+
+        </nav>
+        <!-- End Sidebar navigation -->
+    </div>
+    <!-- End Sidebar scroll-->
+</aside>
+</body>
+</html>

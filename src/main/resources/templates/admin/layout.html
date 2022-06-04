@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title layout:title-pattern="$CONTENT_TITLE - $LAYOUT_TITLE"></title>
+    <link rel="canonical" href="https://www.wrappixel.com/templates/ample-admin-lite/" />
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" th:href="@{/js/plugins/images/favicon.png}">
+    <!-- Custom CSS -->
+    <link th:href="@{/css/style.min.css}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.1/themes/base/jquery-ui.css">
+</head>
+<body>
+
+<div id="main-wrapper" data-layout="vertical" data-navbarbg="skin5" data-sidebartype="full"
+     data-sidebar-position="absolute" data-header-position="absolute" data-boxed-layout="full">
+
+    <div th:replace="admin/header" :: header>
+
+    </div>
+
+    <div th:replace="admin/sidebar" :: sidebar>
+
+    </div>
+
+    <div class="page-wrapper">
+
+        <div layout:fragment="content"></div>
+
+        <div th:replace="admin/footer" :: footer></div>
+    </div>
+
+</div>
+
+<!--<script th:src="@{/js/plugins/bower_components/jquery/dist/jquery.min.js}"></script>-->
+<script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+<script type="text/javascript" th:src="@{/js/jquery.validate.js}"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+<!-- Bootstrap tether Core JavaScript -->
+<script th:src="@{/css/bootstrap/dist/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/js/app-style-switcher.js}"></script>
+<!--Wave Effects -->
+<script th:src="@{/js/waves.js}"></script>
+<!--Menu sidebar -->
+<script th:src="@{/js/sidebarmenu.js}"></script>
+<!--Custom JavaScript -->
+<script th:src="@{/js/custom.js}"></script>
+</body>
+</html>

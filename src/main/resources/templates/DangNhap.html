@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Đăng nhập</title>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <!------ Include the above in your HEAD tag ---------->
+
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/all.css">
+  <script th:src="@{/js/bootstrap.js}"></script>
+  <script th:src="@{/js/jquery-3.4.1.js}"></script>
+</head>
+<body>
+<article class="card-body mx-auto" style="max-width: 400px;">
+  <form action="#" method="post" th:action="@{/thucHienDangNhap}" th:object="${user}">
+    <div class="form-group input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"> <i class="fa fa-user"></i> </span>
+      </div>
+      <input name="" class="form-control" placeholder="Tên đăng nhập" type="text" th:field="*{tenDangNhap}">
+    </div>
+    <div class="form-group input-group">
+      <div class="input-group-prepend">
+        <span class="input-group-text"> <i class="fa fa-lock"></i> </span>
+      </div>
+      <input id="txtPassword" class="form-control" placeholder="Mật khẩu" type="password" th:field="*{matKhau}"/>
+    </div> <!-- form-group// -->
+    <div class="form-group">
+      <button id="btnSubmit" name="btnDangNhap" type="submit" class="btn btn-primary btn-block"> Đăng nhập </button>
+      <span class="alert-warning">[[${thongBao}]]</span>
+    </div> <!-- form-group// -->
+    <p class="text-center">Chưa có tài khoản? <a th:href="@{/dang-ky}">Đăng ký</a> </p>
+    <p class="text-center"><a th:href="@{/trang-chu}" class="btn btn-danger">Trở về trang chủ</a> </p>
+  </form>
+</article>
+</body>
+</html>

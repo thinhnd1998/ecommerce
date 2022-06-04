@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý thông tin đơn hàng</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.validate.js}"></script>
+
+    <style>
+        #chiTietDonHang th, td {
+            padding: .5em;
+            text-align: center;
+        }
+    </style>
+
+    <script type="text/javascript">
+        // $(document).ready(function () {
+        //     layDanhSachDonHang();
+        // });
+
+        function layDanhSachDonHang() {
+            $.ajax({
+                type: "GET",
+                url: "/api/donhang/all",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (result) {
+
+                    var thongTin = "";
+                    $.each(result, function (index, donHang) {
+                        thongTin += "<tr>";
+                        thongTin += "<td>" + donHang.id + "</td>";
+                        thongTin += "<td>" + donHang.tenDonHang + "</td>";
+                        thongTin += "<td>" + donHang.diaChi + "</td>";
+                        thongTin += "<td>" + donHang.dienThoai + "</td>";
+                        thongTin += "<td>" + donHang.ngayDat + "</td>";
+                        thongTin += "<td>" + donHang.ghiChu + "</td>";
+                        thongTin += "<td>" + donHang.trangThai + "</td>";
+                        thongTin += "<td>" + donHang.maKhachHang + "</td>";
+                        thongTin += "<td>" + donHang.maNhanVien + "</td>";
+                        var sua = "suaThongTin('" + donHang.id + "')";
+                        var xoa = "xoaThongTin('" + donHang.id + "')";
+                        thongTin += "<td><a data-toggle=\"modal\" data-target=\"#modalDonHang\" href='#' onclick=\"" + sua + "\" title='Sửa đơn hàng'><i class='fas fa-edit'></i></a>&nbsp;";
+                        thongTin += "<a href='#' data-toggle=\"modal\" data-target=\"#modalXoa\" title='Xóa đơn hàng' onclick=\"" + xoa + "\"><i class='fas fa-trash-alt" +
+                            "'></i></a></td>";
+                        thongTin += "</tr>";
+                    });
+
+                    $("#dsDonHang").append(thongTin);
+                }
+            });
+        }
+
+        function hienThiThemMoi()
+        {
+            $("#modalTitle").text("Thêm mới thông tin đơn hàng");
+            $("#hDonHangId").val("");
+            $("#tenDonHang").val("");
+            $("#diaChi").val("");
+            $("#dienThoai").val("");
+            $("#ghiChu").val("");
+            $("#trangThai").val("");
+            $("#maKhachHang").val("");
+            $("#maNhanVien").val("");
+            $("#tenDonHang").focus();
+        }
+        function themMoiHoacCapNhat() {
+            //alert("Hello");
+            let form = $("#modalDonHang").validate({
+                rules: {
+                    tenDonHang: "required",
+                    diaChi: "required",
+                    dienThoai: "required",
+                    maKhachHang: "required",
+                    maNhanVien: "required",
+                },
+                messages: {
+                    tenDonHang: "Bạn cần phải nhập tên đơn hàng",
+                    diaChi: "Bạn cần phải nhập địa chỉ",
+                    dienThoai: "Bạn cần phải nhập số điện thoại",
+                    maKhachHang: "Bạn cần phải nhập mã khách hàng",
+                    maNhanVien: "Bạn cần phải nhập mã nhân viên",
+                },
+                submitHandler: function () {
+                    if(form.valid()) {
+                        xuLyThemMoi();
+                    }
+                }
+
+            });
+        }
+
+        function xuLyThemMoi() {
+            //Lấy thông tin trên giao diện
+            var donHangID = $("#hDonHangID").val();
+            donHangID = parseInt(donHangID);
+
+            var urlPost = '/api/donhang/add';
+            var methodType = "POST";
+            //TH sửa
+            if (donHangID > 0) {
+                urlPost = '/api/donhang/' + donHangID;
+                methodType = "PUT";
+            }
+
+
+            var ten = $("#tenDonHang").val();
+            var diaChi = $("#diaChi").val();
+            var dt = $("#dienThoai").val();
+            var ghiChu = $("#ghiChu").val();
+            var trangThai = $("#trangThai").val();
+            var maKhachHang = $("#maKhachHang").val();
+            var maNhanVien = $("#maNhanVien").val();
+
+            //Khai báo mảng
+            var formData = {}
+            formData["tenDonHang"] = ten;
+            formData["diaChi"] = diaChi;
+            formData["dienThoai"] = dt;
+            formData["ghiChu"] = ghiChu;
+            formData["trangThai"] = trangThai;
+            formData["maKhachHang"] = maKhachHang;
+            formData["maNhanVien"] = maNhanVien;
+
+            console.log("Tên đơn hàng: " + ten);
+            console.log("Điện thoại: " + dt);
+            console.log("Địa chỉ: " + diaChi);
+
+            $.ajax({
+                url: urlPost,
+                contentType: "application/json; charset=utf-8;",
+                dataType: "json",
+                data: JSON.stringify(formData),
+                type: methodType,
+                success: function (data) {
+                    //alert("Hello");
+                    if (data.id != null) {
+
+                        $("#modalDonHang").modal("hide")
+
+                        //Reload lại trang
+                        window.location.reload();
+                    } else {
+                        $('#tile-body').nextAll(".spanError").remove();
+                        $('#tile-body').after('<div class="alert alert-dismissible alert-danger spanError">' + data.name + '</div>')
+
+                    }
+
+                },
+                error: function (error) {
+                    alert("Có lỗi xảy ra " + error.name);
+                }
+
+            });
+        }
+
+        function suaThongTin(donHangID) {
+            //Lấy thông tin chi tiết của người dùng cần sửa
+            thongTinChiTiet(donHangID);
+        }
+
+        function thongTinChiTiet(donHangID) {
+            $.ajax({
+                type: "GET",
+                url: "/api/donhang/" + donHangID,
+                data: {
+                    id: donHangID
+                },
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (data) {
+                    //alert(data.hoTen);
+                    //Hiển thị lên giao diện
+                    $("#modalTitle").text("Sửa thông tin đơn hàng");
+                    $("#hDonHangID").val(data.id);
+                    $("#tenDonHang").val(data.tenDonHang);
+                    $("#diaChi").val(data.diaChi);
+                    $("#dienThoai").val(data.dienThoai);
+                    $("#ghiChu").val(data.ghiChu);
+                    $("#trangThai").val(data.trangThai);
+                    $("#maKhachHang").val(data.maKhachHang);
+                    $("#maNhanVien").val(data.maNhanVien);
+                }
+            });
+        }
+
+        function xoaThongTin(donHangID) {
+
+            $("#hDonHangID").val(donHangID);
+        };
+
+        function thucHienXoa() {
+            var donHangID = $("#hDonHangID").val();
+            donHangID = parseInt(donHangID);
+
+            $.ajax({
+                url: '/api/donhang/' + donHangID,
+                contentType: "application/json; charset=utf-8;",
+                dataType: "json",
+                type: "DELETE",
+                success: function (data) {
+                    //alert("Hello");
+                    if (data.name != null) {
+
+                        $("#modalXoa").modal("hide")
+
+                        //Reload lại trang
+                        window.location.reload();
+                    } else {
+                        $('#title-delete').nextAll(".spanError").remove();
+                        $('#title-delete').after('<div class="alert alert-dismissible alert-danger spanError">' + data.name + '</div>')
+
+                    }
+
+                },
+                error: function (error) {
+                    alert("Có lỗi xảy ra " + error.name);
+                }
+            });
+        }
+
+        function thongTinDonHangChiTiet(maDonHang) {
+            $.ajax({
+                type: "GET",
+                url: "/api/donhangct/ds/" + maDonHang,
+                data: {
+                    maDonHang: maDonHang
+                },
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (result) {
+
+                    var thongTin = "<tr>" +
+                        "<th>Ảnh</th>" +
+                        "<th>Mã sản phẩm</th>" +
+                        "<th>Tên sản phẩm</th>" +
+                        "<th>Số lượng</th>" +
+                        "<th>Thành tiền</th>" +
+                        "</tr>";
+                    var tongTien = 0;
+
+                    $.each(result, function (index, ct) {
+                        $.ajax({
+                            type: "GET",
+                            url: "/api/sanpham/" + ct.maSanPham,
+                            data: {
+                                maSanPham: ct.maSanPham
+                            },
+                            dataType: 'json',
+                            contentType: "application/json; charset=utf-8",
+                            async: false,
+                            success: function (data) {
+                                tongTien += ct.donGia * ct.soLuong;
+                                thongTin += "<tr>";
+                                thongTin += "<td><img src='/images/" + data.anhSanPham + "' alt='pic' height='50px' width='60px'></td>";
+                                thongTin += "<td>" + ct.maSanPham + "</td>";
+                                thongTin += "<td id='tenSanPham'>" + data.tenSanPham + "</td>";
+                                thongTin += "<td>" + ct.soLuong + "</td>";
+                                thongTin += "<td>" + (ct.soLuong * ct.donGia).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.") + " VNĐ</td>";
+                                thongTin += "</tr>";
+                            }
+                        });
+
+                    });
+                    $("#tongTien").text(tongTien);
+                    $("#tongTien").text(tongTien.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
+                    $("#chiTietDonHang").html(thongTin);
+                }
+            });
+        }
+
+        function duyetDonHang(maDonHang) {
+
+            $.ajax({
+                url: '/api/donhang/approve/' + maDonHang,
+                contentType: "application/json; charset=utf-8;",
+                dataType: "json",
+                type: "PUT",
+                success: function (data) {
+                    if (data.name != null) {
+
+                        //Reload lại trang
+                        window.location.reload();
+                    }
+                }
+            });
+        }
+
+        function duyetNhieu() {
+            $("input[name='chkDuyet']:checked").each(function () {
+                duyetDonHang(this.value);
+            });
+        }
+    </script>
+</head>
+<body layout:fragment="content">
+<div class="page-breadcrumb bg-white">
+    <div class="row align-items-center">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">Quản lý đơn hàng</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <div class="d-md-flex">
+                <a th:if="${#session.getAttribute('QL_DONHANG_THEM') == 1}" href="#" onclick="hienThiThemMoi()" data-toggle="modal"
+                   data-target="#modalDonHang"
+                   class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Thêm mới</a>
+                <button th:if="${#session.getAttribute('QL_DONHANG_SUA') == 1}" class="btn btn-success  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white"
+                        id="btnDuyet" onclick="duyetNhieu()">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 1em">
+        <form action="#" th:action="@{/call-api/donhang/timkiem}" th:object="${donHangSearch}" method="post">
+            <div class="input-group">
+
+                <input placeholder="Tìm kiếm" type="search" id="form1" class="form-control" th:field="*{tuKhoa}"/>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- ============================================================== -->
+<!-- End Bread crumb and right sidebar toggle -->
+<!-- ============================================================== -->
+<!-- ============================================================== -->
+<!-- Container fluid  -->
+<!-- ============================================================== -->
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Start Page Content -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title">Quản lý đơn hàng</h3>
+                <div class="table-responsive">
+                    <table id="tbDonHang" class="table table-hover text-nowrap">
+                        <thead>
+                        <tr>
+                            <th class="border-top-0">Tên đơn hàng</th>
+                            <th class="border-top-0">Địa chỉ</th>
+                            <th class="border-top-0">Điện thoại</th>
+                            <th class="border-top-0">Ngày đặt</th>
+                            <th class="border-top-0">Ghi chú</th>
+                            <th class="border-top-0">Trạng thái</th>
+                            <th class="border-top-0">Tên khách hàng</th>
+                            <th class="border-top-0">Tên nhân viên</th>
+                            <th class="border-top-0"></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="dh : ${lstDonHang}">
+                                <td th:attr="data-id=${dh.id}">[[${dh.tenDonHang}]]</td>
+                                <td th:attr="data-id=${dh.id}">[[${dh.diaChi}]]</td>
+                                <td th:attr="data-id=${dh.id}">[[${dh.dienThoai}]]</td>
+                                <td th:attr="data-id=${dh.id}">[[${dh.ngayDat}]]</td>
+                                <td th:attr="data-id=${dh.id}">[[${dh.ghiChu}]]</td>
+                                <td th:attr="data-id=${dh.id}">[[${dh.trangThai}]]</td>
+                                <td th:attr="data-id=${dh.id}">[[${dh.tenKhachHang}]]</td>
+                                <td th:attr="data-id=${dh.id}">[[${dh.tenNhanVien}]]</td>
+                                <td>
+                                    <th:block th:if="${dh.trangThai} == 'Chờ xác nhận'">
+
+                                        <span th:if="${#session.getAttribute('QL_DONHANG_SUA') == 1}" class="form-check" style="margin-bottom: .3em">
+                                                <input type="checkbox" class="form-check-input" name="chkDuyet" th:value="${dh.id}">
+                                                <label class="form-check-label">
+                                                    Xác nhận
+                                                </label>
+                                            </span>
+                                    </th:block>
+
+                                    <a th:if="${#session.getAttribute('QL_DONHANG_SUA') == 1}" data-toggle="modal" data-target="#modalDonHang" href='#' th:attr="onclick=|suaThongTin(${dh.id})|" title='Sửa đơn hàng'><i class='fas fa-edit'></i></a>
+                                    &nbsp;
+                                    <a th:if="${#session.getAttribute('QL_DONHANG_XOA') == 1}" href='#' data-toggle="modal" data-target="#modalXoa" title='Xóa đơn hàng' th:attr="onclick=|xoaThongTin(${dh.id})|"><i class='fas fa-trash-alt'></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- End PAge Content -->
+    <!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- Right sidebar -->
+    <!-- ============================================================== -->
+    <!-- .right-sidebar -->
+    <!-- ============================================================== -->
+    <!-- End Right sidebar -->
+    <!-- ============================================================== -->
+</div>
+
+<form id="modalDonHang" method="post" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">
+                    Thêm mới đơn hàng</h5>
+                <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tile-body" id="tile-body">
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Tên đơn hàng:
+                        </label>
+                        <div class="col-md-9">
+                            <input type="text" id="tenDonHang" name="tenDonHang" class="form-control"
+                                   placeholder="Nhập tên"/>
+                            <input type="hidden" id="hDonHangID" name="hDonHangID">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Điện thoại:
+                        </label>
+                        <div class="col-md-9">
+                            <input id="dienThoai" name="dienThoai" type="text" class="form-control"
+                                   placeholder="Nhập điện thoại"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Địa chỉ:
+                        </label>
+                        <div class="col-md-9">
+                            <textarea id="diaChi" name="diaChi" rows="4" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Ghi chú:
+                        </label>
+                        <div class="col-md-9">
+                            <textarea id="ghiChu" name="ghiChu" rows="4" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Trạng thái:
+                        </label>
+                        <div class="col-md-9">
+                            <input id="trangThai" name="trangThai" type="text" class="form-control"
+                                   placeholder="Nhập trạng thái"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Mã KH:
+                        </label>
+                        <div class="col-md-9">
+                            <select class="form-select" id="maKhachHang" name="maKhachHang">
+                                <th:block th:each="kh : ${lstKhachHang}">
+                                    <option th:value="${kh.id}">[[${kh.hoTen}]]</option>
+                                </th:block>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Mã NV:
+                        </label>
+                        <div class="col-md-9">
+                            <select class="form-select" id="maNhanVien" name="maNhanVien">
+                                <th:block th:each="nv : ${lstNhanVien}">
+                                    <option th:value="${nv.id}">[[${nv.hoTen}]]</option>
+                                </th:block>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" onclick="themMoiHoacCapNhat()"
+                        class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Cập nhật</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<fieldset id="modalXoa"  class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Thông báo xoá</h5>
+                <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tile-body" id="title-delete">
+
+                    <h3>Bạn có chắc chắn muốn xoá thông tin này không ?  </h3>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" onclick="thucHienXoa()" class="btn btn-primary">Đồng ý</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</fieldset>
+
+<div class="modal fade" id="modalChiTietDonHang" tabindex="-1" role="dialog" aria-labelledby="Chi tiết sản phẩm" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel"><i class="text-muted fa fa-shopping-cart"></i> <strong id="maDonHang" >02051</strong> - <span id="tenDonHang1">Nome do Produto</span></h4>
+            </div>
+            <div class="modal-body">
+
+                <table class="pull-left col-md-8 ">
+                    <tbody>
+                    <tr>
+                        <td class="h6"><strong>Khách hàng:</strong></td>
+                        <td>    </td>
+                        <td>
+                            <select class="form-select" id="khachHangId" disabled style="text-align: center">
+                                <th:block th:each="dm : ${lstKhachHang}">
+                                    <option th:value="${dm.id}">[[${dm.hoTen}]]</option>
+                                </th:block>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6"><strong>Số điện thoại:</strong></td>
+                        <td>    </td>
+                        <td  id="dienThoai1">02051</td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6"><strong>Địa chỉ:</strong></td>
+                        <td>    </td>
+                        <td  id="diaChi1">descrição do produto</td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6"><strong>Ngày đặt:</strong></td>
+                        <td>    </td>
+                        <td  id="ngayDat1">Marca do produto</td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6"><strong>Nhân viên:</strong></td>
+                        <td>    </td>
+                        <td>
+                            <select class="form-select" id="nhanVienId" disabled style="text-align: center">
+                                <th:block th:each="dm : ${lstNhanVien}">
+                                    <option th:value="${dm.id}">[[${dm.hoTen}]]</option>
+                                </th:block>
+                            </select>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="h6"><strong>Trạng thái:</strong></td>
+                        <td>    </td>
+                        <td  id="trangThai1">032165</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div class="clearfix"></div>
+                <button id="btnChiTiet"><i class="bi bi-plus"></i>Chi tiết</button>
+                <table id="chiTietDonHang">
+
+                </table>
+
+                <div class="clearfix"></div>
+                <p class="open_info hide">
+                <h4>Ghi chú:</h4><span id="ghiChu1"></span>
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <div class="text-right pull-right col-md-3">
+                    Tổng hóa đơn: <br/>
+                    <span class="h3 text-muted"><strong id="tongTien">R$35,00</strong> VNĐ</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#tbDonHang tbody tr td:not(:last-child)').on('click', function(event) {
+        var donHangID = $(this).data('id');
+        thongTinDonHangChiTiet(donHangID);
+        $.ajax({
+            type: "GET",
+            url: "/api/donhang/" + donHangID,
+            data: {
+                id: donHangID
+            },
+            dataType: 'json',
+            contentType: "application/json; charset=utf-8",
+            async: true,
+            success: function (data) {
+                //alert(data.hoTen);
+                //Hiển thị lên giao diện
+                $("#maDonHang").html(data.id);
+                $("#tenDonHang1").html(data.tenDonHang);
+                $("#diaChi1").html(data.diaChi);
+                $("#ngayDat1").html(data.ngayDat);
+                $("#dienThoai1").html(data.dienThoai);
+                $("#ghiChu1").html(data.ghiChu);
+                $("#trangThai1").html(data.trangThai);
+                $("#khachHangId").val(data.maKhachHang);
+                $("#nhanVienId").val(data.maNhanVien);
+            }
+        }).done(function (response) {
+            if (response) {
+                $('#modalChiTietDonHang').modal('show');
+            }
+        });
+
+    });
+
+    $('#btnChiTiet').on('click', function(event) {
+        $('#chiTietDonHang').toggle();
+    });
+
+    $('.btn-mais-info').on('click', function(event) {
+        $( '.open_info' ).toggleClass( "hide" );
+    });
+
+
+
+</script>
+</body>
+</html>

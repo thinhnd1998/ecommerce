@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang chủ</title>
+    <style>
+      .product-upper img {
+        height: 330px;
+        width: 360px;
+      }
+    </style>
+</head>
+<body layout:fragment="content">
+<div class="product-big-title-area">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="product-bit-title text-center">
+          <h2>Shop</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="single-product-area">
+  <div class="zigzag-bottom"></div>
+  <div class="container">
+    <div class="row">
+
+        <th:block>
+          <div class="col-md-3 col-sm-6" th:each="sp : ${lstSanPham}" th:if="${sp.duyet} == 1">
+            <div class="single-shop-product">
+              <div class="product-upper">
+                <img th:src="@{'/images/' + ${sp.anhSanPham}}" alt="sp">
+              </div>
+              <h2><a th:href="@{'/trang-chu/chi-tiet/' + ${sp.maSanPham}}">[[${sp.tenSanPham}]]</a></h2>
+              <div class="product-carousel-price">
+                <ins><span th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'COMMA', 0    , 'POINT')}">10.00</span></ins>
+              </div>
+              <div class="product-option-shop">
+                <a class="add_to_cart_button" data-quantity="1" data-product_sku="" data-product_id="70" rel="nofollow" th:href="@{'/gio-hang/add/' + ${sp.maSanPham}}">Thêm vào giỏ</a>
+              </div>
+            </div>
+          </div>
+        </th:block>
+
+    </div>
+
+    <div class="row">
+      <div class="col-md-12">
+        <div class="product-pagination text-center">
+          <nav>
+<!--            <p>-->
+<!--              Trang: [[${currentPage}]] / [[${totalPages}]]-->
+<!--              &nbsp; - &nbsp;-->
+
+<!--              <a th:if="${currentPage > 1}" th:href="@{/trang-chu/page/1}">Trang đầu</a>-->
+<!--              <span th:unless="${currentPage > 1}">Trang đầu</span>-->
+<!--              &nbsp;&nbsp;-->
+<!--              <a th:if="${currentPage > 1}" th:href="@{'/trang-chu/page/' + ${currentPage - 1}}">Trước</a>-->
+<!--              <span th:unless="${currentPage > 1}">Trước</span>-->
+<!--              &nbsp;&nbsp;-->
+
+<!--              <span th:each="i : ${#numbers.sequence(1, totalPages)}">-->
+<!--                <a th:if="${i != currentPage}" th:href="@{'/trang-chu/page/' + ${i}}" >[[${i}]]</a>-->
+<!--                <span th:unless="${i != currentPage}">[[${i}]]</span>-->
+<!--                &nbsp;&nbsp;-->
+<!--              </span>-->
+
+<!--              <a th:if="${currentPage < totalPages}" th:href="@{'/trang-chu/page/' + ${currentPage + 1}}">Sau</a>-->
+<!--              <span th:unless="${currentPage < totalPages}">Sau</span>-->
+<!--              &nbsp;&nbsp;-->
+<!--              <a th:if="${currentPage < totalPages}" th:href="@{'/trang-chu/page/' + ${totalPages}}">Trang cuối</a>-->
+<!--              <span th:unless="${currentPage < totalPages}">Trang cuối</span>-->
+<!--            </p>-->
+            <ul class="pagination">
+              <li>
+                <a th:if="${currentPage > 1}" th:href="@{'/trang-chu/page/' + ${currentPage - 1}}">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+                <span th:unless="${currentPage > 1}" aria-hidden="true">&laquo;</span>
+              </li>
+              <th:block th:each="i : ${#numbers.sequence(1, totalPages)}">
+                <li>
+                  <a th:if="${i != currentPage}" th:href="@{'/trang-chu/page/' + ${i}}" >[[${i}]]</a>
+                  <span th:unless="${i != currentPage}" style="color: black">[[${i}]]</span>
+                </li>
+              </th:block>
+              <li>
+                <a th:if="${currentPage < totalPages}" th:href="@{'/trang-chu/page/' + ${currentPage + 1}}">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+                <span th:unless="${currentPage < totalPages}" aria-hidden="true">&raquo;</span>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

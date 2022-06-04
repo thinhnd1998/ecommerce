@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Chi tiết sản phẩm</title>
+    <style>
+        .related-products-carousel {
+            max-width: 1000px;
+            width: 100%;
+            overflow-x: hidden;
+        }
+        .owl-stage{
+            display: flex;
+        }
+
+        .owl-prev,
+        .owl-next {
+            display: none;
+
+        }
+
+        .anhSP {
+            transition: 0.5s all ease-in-out;
+            padding-right: .5em;
+        }
+
+        .anhSP:hover {
+            height: 125%;
+            width: 125%;
+            transform: scale(1.2);
+        }
+    </style>
+
+
+</head>
+<body layout:fragment="content">
+<div class="product-big-title-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-bit-title text-center">
+                    <h2>Shop</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="single-product-area">
+    <div class="zigzag-bottom"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="single-sidebar">
+                    <h2 class="sidebar-title">Tìm kiếm sản phẩm</h2>
+                    <form action="#" th:action="@{/trang-chu/timkiem}" th:object="${sanPhamSearch}" method="post">
+                        <input type="text" placeholder="Tìm kiếm.." id="tuKhoa" name="tuKhoa">
+                        <button type="submit"><i class="fa fa-search"></i></button>
+                    </form>
+                </div>
+
+                <div class="single-sidebar">
+                    <h2 class="sidebar-title">Sản Phẩm</h2>
+                    <th:block th:each="s : ${lstSanPhamLienQuan}">
+                        <div class="thubmnail-recent">
+                            <img th:src="@{'/images/' + ${s.anhSanPham}}" alt="sp" class="recent-thumb">
+                            <h2><a th:href="@{'/trang-chu/chi-tiet/' + ${s.maSanPham}}">[[${s.tenSanPham}]]</a></h2>
+                            <div class="product-sidebar-price">
+                                <ins th:text="${#numbers.formatDecimal(s.giaBan, 0, 'COMMA', 0    , 'POINT')}">$700.00</ins>
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+            </div>
+
+
+                <div class="col-md-8">
+                    <div class="product-content-right">
+                        <div class="product-breadcroumb">
+                            <th:block th:each="sp : ${lstChiTietSP}">
+                                <a href="/trang-chu">Home</a>
+                                <a href="#">[[${sp.tenDanhMuc}]]</a>
+                                <a href="#">[[${sp.tenThuongHieu}]]</a>
+                                <p>[[${sp.tenSanPham}]]</p>
+                            </th:block>
+                        </div>
+                        <th:block th:each="sp : ${lstChiTietSP}">
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="product-images">
+                                    <div class="product-main-img">
+                                        <img class="magnify" th:src="@{'/images/' + ${sp.anhSanPham}}" alt="sp">
+                                    </div>
+                                    <div class="product-gallery">
+                                        <th:block th:each="a : ${lstAnh}">
+                                            <img class="anhSP" th:src="@{'/images/' + ${a.tenAnh}}" alt="">
+                                        </th:block>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="product-inner">
+                                    <h2 class="product-name">[[${sp.tenSanPham}]]</h2>
+                                    <div class="product-inner-price">
+                                        <ins><span th:text="${#numbers.formatDecimal(sp.giaBan, 0, 'COMMA', 0, 'POINT')}">10.00</span></ins>
+                                    </div>
+
+                                    <form action="" class="cart">
+<!--                                        <div>-->
+<!--                                            <ul class="pagination" style="display: flex">-->
+<!--                                                <li class="page-item">-->
+<!--                                                    <a href="" class="page-link minusButton" th:pid="${sp.maSanPham}"><b>-</b></a>-->
+<!--                                                </li>-->
+<!--                                                <li class="page-item">-->
+<!--                                                    <input type="text" th:id="'quantity' + ${sp.maSanPham}" value="1" class="form-control text-center" onkeydown="return false;" style="max-width: 55px" title="Qty">-->
+<!--                                                </li>-->
+<!--                                                <li class="page-item">-->
+<!--                                                    <a href="" class="page-link plusButton" th:pid="${sp.maSanPham}"><b>+</b></a>-->
+<!--                                                </li>-->
+<!--                                            </ul>-->
+<!--                                        </div>-->
+                                        <a th:href="@{'/gio-hang/add/' + ${sp.maSanPham}}" class="add_to_cart_button">Thêm vào giỏ hàng</a>
+                                    </form>
+
+                                    <div role="tabpanel">
+                                        <ul class="product-tab" role="tablist">
+                                            <li class="active"><a href="#moTa" data-toggle="tab">MÔ TẢ</a></li>
+                                            <li><a href="#profile" data-toggle="tab">ĐÁNH GIÁ</a></li>
+                                        </ul>
+                                        <div class="tab-content">
+                                            <div class="tab-pane fade in active" id="moTa">
+                                                <p>
+                                                    <i class="fa fa-check-circle"></i>
+                                                    CPU: [[${sp.cpu}]]
+                                                </p>
+                                                <p>
+                                                    <i class="fa fa-check-circle"></i>
+                                                    RAM: [[${sp.ram}]]
+                                                </p>
+                                                <p>
+                                                    <i class="fa fa-check-circle"></i>
+                                                    Màn hình: [[${sp.manHinh}]]
+                                                </p>
+                                                <p>
+                                                    <i class="fa fa-check-circle"></i>
+                                                    Pin: [[${sp.dungLuongPin}]]
+                                                </p>
+                                                <p>
+                                                    <i class="fa fa-check-circle"></i>
+                                                    OS: [[${sp.heDieuHanh}]]
+                                                </p>
+                                            </div>
+
+                                            <div class="tab-pane fade" id="profile">
+                                                <h2>Reviews</h2>
+                                                <div class="submit-review">
+                                                    <p><label for="name">Name</label> <input name="name" type="text"></p>
+                                                    <p><label for="email">Email</label> <input name="email" type="email"></p>
+                                                    <div class="rating-chooser">
+                                                        <p>Your rating</p>
+
+                                                        <div class="rating-wrap-post">
+                                                            <i class="fa fa-star"></i>
+                                                            <i class="fa fa-star"></i>
+                                                            <i class="fa fa-star"></i>
+                                                            <i class="fa fa-star"></i>
+                                                            <i class="fa fa-star"></i>
+                                                        </div>
+                                                    </div>
+                                                    <p><label for="review">Your review</label> <textarea name="review" id="" cols="30" rows="10"></textarea></p>
+                                                    <p><input type="submit" value="Submit"></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        </th:block>
+                        <div class="related-products-wrapper">
+                            <h2 class="related-products-title">Sản phẩm liên quan</h2>
+                            <div class="related-products-carousel">
+                                <th:block th:each="s : ${lstSanPhamLienQuan}">
+                                    <div class="single-product">
+                                        <div class="product-f-image">
+                                            <img th:src="@{'/images/' + ${s.anhSanPham}}" alt="sp" height="270px" width="280px">
+                                            <div class="product-hover">
+                                                <a th:href="@{'/gio-hang/add/' + ${s.maSanPham}}" class="add-to-cart-link"><i class="fa fa-shopping-cart"></i> Thêm vào giỏ</a>
+                                                <a th:href="@{'/trang-chu/chi-tiet/' + ${s.maSanPham}}" class="view-details-link"><i class="fa fa-link"></i> Chi tiết</a>
+                                            </div>
+                                        </div>
+
+                                        <h2><a th:href="@{'/trang-chu/chi-tiet/' + ${s.maSanPham}}">[[${s.tenSanPham}]]</a></h2>
+
+                                        <div class="product-carousel-price">
+                                            <ins th:text="${#numbers.formatDecimal(s.giaBan, 0, 'COMMA', 0    , 'POINT')}">$700.00</ins>
+                                        </div>
+                                    </div>
+                                </th:block>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

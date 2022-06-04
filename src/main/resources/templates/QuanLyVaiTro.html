@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Quản lý thông tin vai trò</title>
+  <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+  <script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+  <script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+  <script type="text/javascript" th:src="@{/js/jquery.validate.js}"></script>
+
+  <script type="text/javascript">
+    // $(document).ready(function () {
+    //   layDanhSachVaiTro();
+    // });
+
+    function layDanhSachVaiTro() {
+      $.ajax({
+        type: "GET",
+        url: "/api/vaitro/all",
+        dataType: "json",
+        contentType: "application/json; charset=utf-8",
+        async: true,
+        success: function (result) {
+
+          var thongTin = "";
+          $.each(result, function (index, vaiTro) {
+            thongTin += "<tr>";
+            thongTin += "<td>" + vaiTro.id + "</td>";
+            thongTin += "<td>" + vaiTro.tenVaiTro + "</td>";
+
+            var sua = "suaThongTin('" + vaiTro.id + "')";
+            var xoa = "xoaThongTin('" + vaiTro.id + "')";
+            thongTin += "<td><a data-toggle=\"modal\" data-target=\"#modalVaiTro\" href='#' onclick=\"" + sua + "\" title='Sửa vai trò'><i class='fas fa-edit'></i></a>&nbsp;";
+            thongTin += "<a href='#' data-toggle=\"modal\" data-target=\"#modalXoa\" title='Xóa vai trò' onclick=\"" + xoa + "\"><i class='fas fa-trash-alt'></i></a></td>";
+            thongTin += "</tr>";
+          });
+
+          $("#dsVaiTro").append(thongTin);
+        }
+      });
+    }
+
+    function hienThiThemMoi()
+    {
+      $("#modalTitle").text("Thêm mới thông tin vai trò");
+      $("#hVaiTroId").val("");
+      $("#tenVaiTro").val("");
+      $("#tenVaiTro").focus();
+    }
+    function themMoiHoacCapNhat() {
+      //alert("Hello");
+      let form = $("#modalVaiTro").validate({
+        rules: {
+          tenVaiTro: "required",
+        },
+        messages: {
+          tenVaiTro: "Bạn cần phải nhập tên vai trò",
+        },
+        submitHandler: function () {
+          if(form.valid()) {
+            xuLyThemMoi();
+          }
+        }
+
+      });
+    }
+
+    function xuLyThemMoi() {
+      //Lấy thông tin trên giao diện
+      var vaiTroId = $("#hVaiTroId").val();
+      vaiTroId = parseInt(vaiTroId);
+
+      var urlPost = '/api/vaitro/add';
+      var methodType = "POST";
+      //TH sửa
+      if (vaiTroId > 0) {
+        urlPost = '/api/vaitro/' + vaiTroId;
+        methodType = "PUT";
+      }
+
+      var tenVT = $("#tenVaiTro").val();
+
+      //Khai báo mảng
+      var formData = {}
+      formData["tenVaiTro"] = tenVT;
+
+      console.log("Tên vai trò: " + tenVT);
+
+      $.ajax({
+        url: urlPost,
+        contentType: "application/json; charset=utf-8;",
+        dataType: "json",
+        data: JSON.stringify(formData),
+        type: methodType,
+        success: function (data) {
+          //alert("Hello");
+          if (data.id != null) {
+
+            $("#modalVaiTro").modal("hide")
+
+            //Reload lại trang
+            window.location.reload();
+          } else {
+            $('#tile-body').nextAll(".spanError").remove();
+            $('#tile-body').after('<div class="alert alert-dismissible alert-danger spanError">' + data.name + '</div>')
+
+          }
+
+        },
+        error: function (error) {
+          alert("Có lỗi xảy ra " + error.name);
+        }
+
+      });
+    }
+
+    function suaThongTin(vaiTroId) {
+      //Lấy thông tin chi tiết của người dùng cần sửa
+      thongTinChiTiet(vaiTroId);
+    }
+
+    function thongTinChiTiet(vaiTroId) {
+      $.ajax({
+        type: "GET",
+        url: "/api/vaitro/" + vaiTroId,
+        data: {
+          id: vaiTroId
+        },
+        dataType: 'json',
+        contentType: "application/json; charset=utf-8",
+        async: true,
+        success: function (data) {
+          //alert(data.hoTen);
+          //Hiển thị lên giao diện
+          $("#modalTitle").text("Sửa thông tin vai trò");
+          $("#hVaiTroId").val(data.id);
+          $("#tenVaiTro").val(data.tenVaiTro);
+        }
+      });
+    }
+
+    function xoaThongTin(vaiTroId) {
+
+      $("#hVaiTroId").val(vaiTroId);
+    };
+
+    function thucHienXoa() {
+      var vaiTroId = $("#hVaiTroId").val();
+      vaiTroId = parseInt(vaiTroId);
+
+      $.ajax({
+        url: '/api/vaitro/' + vaiTroId,
+        contentType: "application/json; charset=utf-8;",
+        dataType: "json",
+        type: "DELETE",
+        success: function (data) {
+          //alert("Hello");
+          if (data.name != null) {
+
+            $("#modalXoa").modal("hide")
+
+            //Reload lại trang
+            window.location.reload();
+          } else {
+            $('#title-delete').nextAll(".spanError").remove();
+            $('#title-delete').after('<div class="alert alert-dismissible alert-danger spanError">' + data.name + '</div>')
+
+          }
+
+        },
+        error: function (error) {
+          alert("Có lỗi xảy ra " + error.name);
+        }
+      });
+    }
+  </script>
+</head>
+<body layout:fragment="content">
+<div class="page-breadcrumb bg-white">
+  <div class="row align-items-center">
+    <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+      <h4 class="page-title">Quản Lý Danh Mục</h4>
+    </div>
+    <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+      <div class="d-md-flex">
+        <a th:if="${#session.getAttribute('QL_VAITRO_THEM') == 1}" href="#" onclick="hienThiThemMoi()" data-toggle="modal"
+           data-target="#modalVaiTro"
+           class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Thêm mới</a>
+      </div>
+    </div>
+  </div>
+  <div style="margin-top: 1em">
+    <form action="#" th:action="@{/call-api/vaitro/timkiem}" th:object="${vaiTroSearch}" method="post">
+      <div class="input-group">
+
+        <input placeholder="Tìm kiếm" type="search" id="form1" class="form-control" th:field="*{tuKhoa}"/>
+
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+  <!-- /.col-lg-12 -->
+</div>
+<!-- ============================================================== -->
+<!-- End Bread crumb and right sidebar toggle -->
+<!-- ============================================================== -->
+<!-- ============================================================== -->
+<!-- Container fluid  -->
+<!-- ============================================================== -->
+<div class="container-fluid">
+  <!-- ============================================================== -->
+  <!-- Start Page Content -->
+  <!-- ============================================================== -->
+  <div class="row">
+    <div class="col-sm-12">
+      <div class="white-box">
+        <h3 class="box-title">Quản Lý Vai Trò</h3>
+        <div class="table-responsive">
+          <table class="table text-nowrap">
+            <thead>
+              <tr>
+                <th class="border-top-0">ID</th>
+                <th class="border-top-0">Tên Vai Trò</th>
+                <th class="border-top-0"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="vt : ${lstVaiTro}">
+                <td>[[${vt.id}]]</td>
+                <td>[[${vt.tenVaiTro}]]</td>
+                <td>
+                  <a th:if="${#session.getAttribute('QL_VAITRO_SUA') == 1}" data-toggle="modal" data-target="#modalVaiTro" href='#' th:attr="onclick=|suaThongTin(${vt.id})|" title='Sửa vai trò'><i class='fas fa-edit'></i></a>
+                  &nbsp;
+                  <a th:if="${#session.getAttribute('QL_VAITRO_XOA') == 1}" href='#' data-toggle="modal" data-target="#modalXoa" title='Xóa vai trò' th:attr="onclick=|xoaThongTin(${vt.id})|"><i class='fas fa-trash-alt'></i></a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ============================================================== -->
+  <!-- End PAge Content -->
+  <!-- ============================================================== -->
+  <!-- ============================================================== -->
+  <!-- Right sidebar -->
+  <!-- ============================================================== -->
+  <!-- .right-sidebar -->
+  <!-- ============================================================== -->
+  <!-- End Right sidebar -->
+  <!-- ============================================================== -->
+</div>
+
+<form id="modalVaiTro" method="post" class="modal fade">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">
+          Thêm mới vai trò</h5>
+        <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="tile-body" id="tile-body">
+          <div class="form-group row">
+            <label class="col-md-3">
+              Tên vai trò<span style="color: darkred">(*)</span>
+            </label>
+            <div class="col-md-9">
+              <input type="text" id="tenVaiTro" name="tenVaiTro" class="form-control"
+                     placeholder="Nhập tên vai trò"/>
+              <input type="hidden" id="hVaiTroId" name="hVaiTroId">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" onclick="themMoiHoacCapNhat()"
+                class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Cập nhật</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<fieldset id="modalXoa"  class="modal fade">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Thông báo xoá</h5>
+        <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="tile-body" id="title-delete">
+
+          <h3>Bạn có chắc chắn muốn xoá thông tin này không ?  </h3>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" onclick="thucHienXoa()" class="btn btn-primary">Đồng ý</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+      </div>
+    </div>
+  </div>
+</fieldset>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layout}">
+<head>
+  <meta charset="UTF-8">
+  <title>Đơn hàng</title>
+  <script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+  <style>
+    .clearbtn {
+      background: none repeat scroll 0 0 #5a88ca;
+      border: medium none;
+      color: #fff;
+      padding: 11px 20px;
+      text-transform: uppercase;
+    }
+
+    #chiTietDonHang th, td {
+      padding: .5em;
+      text-align: center;
+    }
+  </style>
+  <script>
+    function thongTinDonHangChiTiet(maDonHang) {
+      $.ajax({
+        type: "GET",
+        url: "/api/donhangct/ds/" + maDonHang,
+        data: {
+          maDonHang: maDonHang
+        },
+        dataType: 'json',
+        contentType: "application/json; charset=utf-8",
+        async: true,
+        success: function (result) {
+
+          var thongTin = "<tr>" +
+                  "<th>Ảnh</th>" +
+                  "<th>Mã sản phẩm</th>" +
+                  "<th>Tên sản phẩm</th>" +
+                  "<th>Số lượng</th>" +
+                  "<th>Thành tiền</th>" +
+                  "</tr>";
+          var tongTien = 0;
+
+          $.each(result, function (index, ct) {
+            $.ajax({
+              type: "GET",
+              url: "/api/sanpham/" + ct.maSanPham,
+              data: {
+                maSanPham: ct.maSanPham
+              },
+              dataType: 'json',
+              contentType: "application/json; charset=utf-8",
+              async: false,
+              success: function (data) {
+                tongTien += ct.donGia * ct.soLuong;
+                thongTin += "<tr>";
+                thongTin += "<td><img src='/images/" + data.anhSanPham + "' alt='pic' height='50px' width='60px'></td>";
+                thongTin += "<td>" + ct.maSanPham + "</td>";
+                thongTin += "<td id='tenSanPham'>" + data.tenSanPham + "</td>";
+                thongTin += "<td>" + ct.soLuong + "</td>";
+                thongTin += "<td>" + (ct.soLuong * ct.donGia).toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.") + " VNĐ</td>";
+                thongTin += "</tr>";
+              }
+            });
+
+          });
+          $("#tongTien").text(tongTien.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1."));
+          $("#chiTietDonHang").html(thongTin);
+        }
+      });
+    }
+  </script>
+</head>
+<body layout:fragment="content">
+<div class="product-big-title-area">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="product-bit-title text-center">
+          <h2>Đơn hàng</h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> <!-- End Page title area -->
+
+
+<div class="single-product-area">
+  <div class="zigzag-bottom"></div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="single-sidebar">
+          <h2 class="sidebar-title">Tìm kiếm sản phẩm</h2>
+          <form action="#" th:action="@{/trang-chu/timkiem}" th:object="${sanPhamClientSearch}" method="post">
+            <input type="text" placeholder="Tìm kiếm.." id="tuKhoa" name="tuKhoa">
+            <button type="submit"><i class="fa fa-search"></i></button>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-8">
+        <div class="product-content-right">
+          <div class="woocommerce">
+            <table cellspacing="0" class="shop_table cart table-hover" id="thongTinDonHang">
+              <thead>
+              <tr>
+
+                <th class="product-name">Địa chỉ</th>
+                <th class="product-name">Điện thoại</th>
+                <th class="product-name">Ngày đặt</th>
+                <th class="product-name">Ghi chú</th>
+                <th class="product-name">Trạng thái</th>
+              </tr>
+              </thead>
+
+              <tbody>
+              <th:block th:each="dh : ${lstDonHang}">
+                  <tr class="cart_item" th:attr="data-id=${dh.id}">
+
+                    <td class="product-name">
+                      <p>[[${dh.diaChi}]]</p>
+                    </td>
+
+                    <td class="product-name">
+                      <p>[[${dh.dienThoai}]]</p>
+                    </td>
+
+                    <td class="product-name">
+                      <p>[[${dh.ngayDat}]]</p>
+                    </td>
+
+                    <td class="product-name">
+                      <p>[[${dh.ghiChu}]]</p>
+                    </td>
+
+                    <td class="product-name">
+                      <p>[[${dh.trangThai}]]</p>
+                    </td>
+                  </tr>
+              </th:block>
+
+              <tr>
+                <td class="actions" colspan="6">
+
+                  <a class="clearbtn" th:href="@{/trang-chu}">Trở về trang chủ</a>
+
+                </td>
+              </tr>
+              </tbody>
+            </table>
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="modalChiTietDonHang" tabindex="-1" role="dialog" aria-labelledby="Chi tiết sản phẩm" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="myModalLabel"><i class="text-muted fa fa-shopping-cart"></i> <strong id="maDonHang" >02051</strong> - <span id="tenDonHang1">Nome do Produto</span></h4>
+      </div>
+      <div class="modal-body">
+
+        <table class="pull-left col-md-8 ">
+          <tbody>
+
+          <tr>
+            <td class="h6"><strong>Số điện thoại:</strong></td>
+            <td>    </td>
+            <td  id="dienThoai1">02051</td>
+          </tr>
+
+          <tr>
+            <td class="h6"><strong>Địa chỉ:</strong></td>
+            <td>    </td>
+            <td  id="diaChi1">descrição do produto</td>
+          </tr>
+
+          <tr>
+            <td class="h6"><strong>Ngày đặt:</strong></td>
+            <td>    </td>
+            <td  id="ngayDat1">Marca do produto</td>
+          </tr>
+
+          <tr>
+            <td class="h6"><strong>Trạng thái:</strong></td>
+            <td>    </td>
+            <td  id="trangThai1">032165</td>
+          </tr>
+          </tbody>
+        </table>
+        <div class="clearfix"></div>
+        <button id="btnChiTiet"><i class="bi bi-plus"></i>Chi tiết</button>
+        <table id="chiTietDonHang">
+
+        </table>
+
+        <div class="clearfix"></div>
+        <p class="open_info hide">
+        <h4>Ghi chú:</h4><span id="ghiChu1"></span>
+        </p>
+
+      </div>
+
+      <div class="modal-footer">
+
+        <div class="text-right pull-right col-md-3">
+          Tổng hóa đơn: <br/>
+          <span class="h3 text-muted"><strong id="tongTien">R$35,00</strong> VNĐ</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  $('#thongTinDonHang tbody tr').on('click', function(event) {
+    var donHangID = $(this).data('id');
+    thongTinDonHangChiTiet(donHangID);
+    $.ajax({
+      type: "GET",
+      url: "/api/donhang/" + donHangID,
+      data: {
+        id: donHangID
+      },
+      dataType: 'json',
+      contentType: "application/json; charset=utf-8",
+      async: true,
+      success: function (data) {
+        //alert(data.hoTen);
+        //Hiển thị lên giao diện
+        $("#maDonHang").html(data.id);
+        $("#tenDonHang1").html(data.tenDonHang);
+        $("#diaChi1").html(data.diaChi);
+        $("#ngayDat1").html(data.ngayDat);
+        $("#dienThoai1").html(data.dienThoai);
+        $("#ghiChu1").html(data.ghiChu);
+        $("#trangThai1").html(data.trangThai);
+      }
+    }).done(function (response) {
+      if (response) {
+        $('#modalChiTietDonHang').modal('show');
+      }
+    });
+
+  });
+
+  $('#btnChiTiet').on('click', function(event) {
+    $('#chiTietDonHang').toggle();
+  });
+
+  $('.btn-mais-info').on('click', function(event) {
+    $( '.open_info' ).toggleClass( "hide" );
+  });
+</script>
+</body>
+</html>

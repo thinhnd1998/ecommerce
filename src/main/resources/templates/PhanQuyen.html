@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý phân quyền</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+    <style>
+        .tab-btn {
+            margin: 50px;
+        }
+
+        .tab-btn button {
+            display: block;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body layout:fragment="content">
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Start Page Content -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title">Phân quyền sử dụng cho vai trò</h3>
+
+                <select id="vaiTroId" class="form-select" aria-label="Tên vai trò" style="text-align: center">
+                    <option selected>--Chọn vai trò--</option>
+                    <th:block th:each="vt : ${lstVaiTro}">
+                        <option th:value="${vt.id}"><a th:href="@{'call-api/phanquyen/' + ${vt.id}}">[[${vt.tenVaiTro}]]</a></option>
+                    </th:block>
+
+                </select>
+
+                <div class="row" style="display: flex">
+                    <div class="col-sm-4">
+                        <div class="table-responsive">
+                            <table id="table1" class="table">
+                                <th>
+                                    <td>
+                                        <button class="btn btn-secondary checkall1">Chọn hết</button>
+                                    </td>
+                                    <td><b>Chức năng chưa được cấp</b></td>
+                                </th>
+                                    <th:block th:each="q : ${lstQuyenChuaPhan}">
+                                        <th:block th:each="cn : ${lstChucNang}">
+                                            <tr th:if="${q.chucNangId == cn.id}">
+                                                <td>
+                                                    <input type="checkbox" name="chkChucNang" th:value="${cn.id}">
+                                                </td>
+                                                <td>[[${cn.tenChucNang}]]</td>
+                                            </tr>
+                                        </th:block>
+                                    </th:block>
+
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <input type="checkbox" name="chkChucNang" value="1">-->
+<!--                                    </td>-->
+<!--                                    <td>Quản lý sản phẩm</td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <input type="checkbox" name="chkChucNang" value="2">-->
+<!--                                    </td>-->
+<!--                                    <td>Quản lý ảnh sản phẩm</td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <input type="checkbox" name="chkChucNang" value="3">-->
+<!--                                    </td>-->
+<!--                                    <td>Quản lý danh mục</td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <input type="checkbox" name="chkChucNang" value="4">-->
+<!--                                    </td>-->
+<!--                                    <td>Quản lý thương hiệu</td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <input type="checkbox" name="chkChucNang" value="5">-->
+<!--                                    </td>-->
+<!--                                    <td>Quản lý đơn hàng</td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <input type="checkbox" name="chkChucNang" value="6">-->
+<!--                                    </td>-->
+<!--                                    <td>Quản lý chi tiết đơn hàng</td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <input type="checkbox" name="chkChucNang" value="7">-->
+<!--                                    </td>-->
+<!--                                    <td>Quản lý vai trò</td>-->
+<!--                                </tr>-->
+<!--                                <tr>-->
+<!--                                    <td>-->
+<!--                                        <input type="checkbox" name="chkChucNang" value="8">-->
+<!--                                    </td>-->
+<!--                                    <td>Quản lý người dùng</td>-->
+<!--                                </tr>-->
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-btn col-sm-3">
+                        <div style="margin-top: 10em"></div>
+                        <button class="btn btn-info" id="btn1" onclick="themNhieu()">>></button>
+                        <button class="btn btn-info" id="btn2" onclick="xoaNhieu()"><<</button>
+                        <div class="chucNang">
+                            <h6>Chức năng</h6>
+                            <ul style="list-style-type: none">
+                                <li>
+                                    <input type="checkbox" id="xem" name="danhSachQuyen" value="1">Xem
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="them" name="danhSachQuyen" value="1">Thêm
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="sua" name="danhSachQuyen" value="1">Sửa
+                                </li>
+                                <li>
+                                    <input type="checkbox" id="xoa" name="danhSachQuyen" value="1">Xóa
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="table-responsive">
+                            <table id="table2" class="table">
+                                <th>
+                                    <td>
+                                        <button class="btn btn-secondary checkall2">Chọn hết</button>
+                                    </td>
+                                    <td><b>Chức năng được cấp</b></td>
+                                </th>
+
+                                <th:block th:each="q : ${lstQuyenTheoVaiTro}">
+                                    <th:block th:each="cn : ${lstChucNang}">
+                                        <tr th:if="${q.chucNangId == cn.id}">
+                                            <td>
+                                                <input type="checkbox" name="chkChucNang" th:value="${cn.id}">
+                                            </td>
+                                            <td>[[${cn.tenChucNang}]]</td>
+                                        </tr>
+                                    </th:block>
+                                </th:block>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--<script>-->
+<!--    function tab1_To_tab2() {-->
+<!--        let checkboxes = document.getElementsByName("check-tab1"),-->
+<!--            table1 = document.getElementById("table1"),-->
+<!--            table2 = document.getElementById("table2");-->
+
+<!--        for (let i = 0; i < checkboxes.length; i++) {-->
+<!--            if (checkboxes[i].checked) {-->
+<!--                let newRow = table2.insertRow(table2.length),-->
+<!--                    cell1 = newRow.insertCell(0),-->
+<!--                    cell2 = newRow.insertCell(1);-->
+
+<!--                cell1.innerHTML = "<input type='checkbox' name='check-tab2'>";-->
+<!--                cell2.innerHTML =  table1.rows[i+1].cells[1].innerHTML;-->
+
+<!--                var index = table1.rows[i+1].rowIndex;-->
+<!--                table1.deleteRow(index);-->
+<!--                i&#45;&#45;;-->
+<!--            }-->
+<!--        }-->
+<!--    }-->
+
+<!--    function tab2_To_tab1() {-->
+<!--        let checkboxes = document.getElementsByName("check-tab2"),-->
+<!--            table1 = document.getElementById("table1"),-->
+<!--            table2 = document.getElementById("table2");-->
+
+<!--        for (let i = 0; i < checkboxes.length; i++) {-->
+<!--            if (checkboxes[i].checked) {-->
+<!--                let newRow = table1.insertRow(table1.length),-->
+<!--                    cell1 = newRow.insertCell(0),-->
+<!--                    cell2 = newRow.insertCell(1);-->
+
+<!--                cell1.innerHTML = "<input type='checkbox' name='check-tab1'>";-->
+<!--                cell2.innerHTML =  table2.rows[i+1].cells[1].innerHTML;-->
+
+<!--                var index = table2.rows[i+1].rowIndex;-->
+<!--                table2.deleteRow(index);-->
+<!--                i&#45;&#45;;-->
+<!--            }-->
+<!--        }-->
+<!--    }-->
+<!--</script>-->
+<script>
+    function thucHienThemMoi(chucNangId) {
+        let vaiTroId = $("#vaiTroId").val();
+        let xem = 0;
+        if ($("#xem").is(':checked')) {
+            xem = $("#xem").val();
+        }
+        let them = 0;
+        if ($("#them").is(':checked')) {
+            them = $("#them").val();
+        }
+        let sua = 0;
+        if ($("#sua").is(':checked')) {
+            sua = $("#sua").val();
+        }
+        let xoa = 0;
+        if ($("#xoa").is(':checked')) {
+            xoa = $("#xoa").val();
+        }
+
+        let formData = {};
+        formData["vaiTroId"] = vaiTroId;
+        formData["chucNangId"] = chucNangId;
+        formData["xem"] = xem;
+        formData["them"] = them;
+        formData["sua"] = sua;
+        formData["xoa"] = xoa;
+
+        $.ajax({
+            url: "/api/phanquyen/add",
+            contentType: "application/json; charset=utf-8;",
+            dataType: "json",
+            data: JSON.stringify(formData),
+            type: "POST",
+            success: function (data) {
+                //alert("Hello");
+                if (data.id != null) {
+                    window.location.reload();
+                }
+
+            },
+            error: function (error) {
+                alert("Có lỗi xảy ra " + error.name);
+            }
+        })
+    }
+
+    function themNhieu() {
+        $("#table1 input[name='chkChucNang']:checked").each(function () {
+            thucHienThemMoi(this.value)
+        });
+    }
+
+    function thucHienXoa(vaiTroId, chucNangId) {
+        $.ajax({
+            url: '/api/phanquyen/' + vaiTroId + '/' + chucNangId,
+            contentType: "application/json; charset=utf-8;",
+            dataType: "json",
+            type: "DELETE",
+            success: function (data) {
+                //alert("Hello");
+                if (data.name != null) {
+                    window.location.reload();
+                }
+            },
+            error: function (error) {
+                alert("Có lỗi xảy ra " + error.name);
+            }
+        });
+    }
+
+    function xoaNhieu() {
+        let vt = $("#vaiTroId").val();
+
+            $("#table2 input[name='chkChucNang']:checked").each(function () {
+                thucHienXoa(vt, this.value)
+            });
+
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        $("#vaiTroId").on("change", function(){
+            let vt = $("#vaiTroId").val();
+            window.location.href = "http://localhost:8081/call-api/phanquyen/" + vt;
+
+        })
+        let url_ = $(location).attr('href');
+        let lastChar = url_.charAt(url_.length - 1);
+        $('#vaiTroId').val(lastChar);
+    })
+
+</script>
+
+<script>
+    $(function () {
+        $(document).on("click", "#btn1", function () {
+            var getSelectedValues = $("#table1 input:checked").parents("tr").clone().appendTo($("#table2 tbody").add(getSelectedValues));
+
+            $('#table1 input:checked').parents("tr").remove();
+            $('#table2 input:checked').prop('checked', false);
+        })
+
+        $(document).on("click", "#btn2", function () {
+            var getSelectedValues = $("#table2 input:checked").parents("tr").clone().appendTo($("#table1 tbody").add(getSelectedValues));
+
+            $('#table2 input:checked').parents("tr").remove();
+            $('#table1 input:checked').prop('checked', false);
+        })
+
+        $(document).on("click", ".checkall1", function(){
+            $('#table1 input:checkbox').prop('checked', true);
+        })
+
+        $(document).on("click", ".checkall2", function(){
+            $('#table2 input:checkbox').prop('checked', true);
+        })
+
+    })
+</script>
+</body>
+</html>

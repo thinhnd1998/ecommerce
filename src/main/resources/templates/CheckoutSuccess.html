@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{client/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Trang chủ</title>
+    <style>
+        .homeBtn {
+            background: none repeat scroll 0 0 #5a88ca;
+            border: medium none;
+            color: #fff;
+            padding: 11px 20px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body layout:fragment="content">
+<div class="product-big-title-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="product-bit-title text-center">
+                    <h2>Đặt hàng thành công</h2>
+                    <a class="homeBtn" th:href="@{/trang-chu}">Quay lại trang chủ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

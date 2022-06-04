@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý thông tin nhân viên</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/bootstrap.min.css}"/>
+    <script type="text/javascript" th:src="@{/js/jquery-3.4.1.js}"></script>
+    <script type="text/javascript" th:src="@{/js/bootstrap.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/jquery.validate.js}"></script>
+
+    <script type="text/javascript">
+        // $(document).ready(function () {
+        //     layDanhSachNhanVien();
+        // });
+
+        function layDanhSachNhanVien() {
+            $.ajax({
+                type: "GET",
+                url: "/api/nhanvien/all",
+                dataType: "json",
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (result) {
+
+                    var thongTin = "";
+                    $.each(result, function (index, nhanVien) {
+                        thongTin += "<tr>";
+                        thongTin += "<td>" + nhanVien.id + "</td>";
+                        thongTin += "<td>" + nhanVien.hoTen + "</td>";
+                        thongTin += "<td>" + nhanVien.dienThoai + "</td>";
+                        thongTin += "<td>" + nhanVien.email + "</td>";
+                        thongTin += "<td>" + nhanVien.diaChi + "</td>";
+
+                        var sua = "suaThongTin('" + nhanVien.id + "')";
+                        var xoa = "xoaThongTin('" + nhanVien.id + "')";
+                        thongTin += "<td><a data-toggle=\"modal\" data-target=\"#modalNhanVien\" href='#' onclick=\"" + sua + "\" title='Sửa nhân viên'><i class='fas fa-edit'></i></a>&nbsp;";
+                        thongTin += "<a href='#' data-toggle=\"modal\" data-target=\"#modalXoa\" title='Xóa nhân viên' onclick=\"" + xoa + "\"><i class='fas fa-trash-alt" +
+                            "'></i></a></td>";
+                        thongTin += "</tr>";
+                    });
+
+                    $("#dsNhanVien").append(thongTin);
+                }
+            });
+        }
+
+        function hienThiThemMoi()
+        {
+            $("#modalTitle").text("Thêm mới thông tin nhân viên");
+            $("#hNhanVienId").val("");
+            $("#hoTen").val("");
+            $("#hoTen").focus();
+            $("#dienThoai").val("");
+            $("#email").val("");
+            $("#diaChi").val("");
+        }
+        function themMoiHoacCapNhat() {
+            //alert("Hello");
+            let form = $("#modalNhanVien").validate({
+                rules: {
+                    hoTen: "required",
+                },
+                messages: {
+                    hoTen: "Bạn cần phải nhập tên",
+                },
+                submitHandler: function () {
+                    if(form.valid()) {
+                        xuLyThemMoi();
+                    }
+                }
+
+            });
+        }
+
+        function xuLyThemMoi() {
+            //Lấy thông tin trên giao diện
+            var nhanVienID = $("#hNhanVienID").val();
+            nhanVienID = parseInt(nhanVienID);
+
+            var urlPost = '/api/nhanvien/add';
+            var methodType = "POST";
+            //TH sửa
+            if (nhanVienID > 0) {
+                urlPost = '/api/nhanvien/' + nhanVienID;
+                methodType = "PUT";
+            }
+
+
+            var ten = $("#hoTen").val();
+            var dt = $("#dienThoai").val();
+            var email = $("#email").val();
+            var diaChi = $("#diaChi").val();
+
+
+            //Khai báo mảng
+            var formData = {}
+            formData["hoTen"] = ten;
+            formData["dienThoai"] = dt;
+            formData["email"] = email;
+            formData["diaChi"] = diaChi;
+
+            console.log("Họ tên: " + ten);
+            console.log("Điện thoại: " + dt);
+            console.log("Email: " + email);
+            console.log("Địa chỉ: " + diaChi);
+
+            $.ajax({
+                url: urlPost,
+                contentType: "application/json; charset=utf-8;",
+                dataType: "json",
+                data: JSON.stringify(formData),
+                type: methodType,
+                success: function (data) {
+                    //alert("Hello");
+                    if (data.id != null) {
+
+                        $("#modalNhanVien").modal("hide")
+
+                        //Reload lại trang
+                        window.location.reload();
+                    } else {
+                        $('#tile-body').nextAll(".spanError").remove();
+                        $('#tile-body').after('<div class="alert alert-dismissible alert-danger spanError">' + data.name + '</div>')
+
+                    }
+
+                },
+                error: function (error) {
+                    alert("Có lỗi xảy ra " + error.name);
+                }
+
+            });
+        }
+
+        function suaThongTin(nhanVienID) {
+            //Lấy thông tin chi tiết của người dùng cần sửa
+            thongTinChiTiet(nhanVienID);
+        }
+
+        function thongTinChiTiet(nhanVienID) {
+            $.ajax({
+                type: "GET",
+                url: "/api/nhanvien/" + nhanVienID,
+                data: {
+                    id: nhanVienID
+                },
+                dataType: 'json',
+                contentType: "application/json; charset=utf-8",
+                async: true,
+                success: function (data) {
+                    //alert(data.hoTen);
+                    //Hiển thị lên giao diện
+                    $("#modalTitle").text("Sửa thông tin nhân viên");
+                    $("#hNhanVienID").val(data.id);
+                    $("#hoTen").val(data.hoTen);
+                    $("#dienThoai").val(data.dienThoai);
+                    $("#email").val(data.email);
+                    $("#diaChi").val(data.diaChi);
+                }
+            });
+        }
+
+        function xoaThongTin(nhanVienID) {
+
+            $("#hNhanVienID").val(nhanVienID);
+        };
+
+        function thucHienXoa() {
+            var nhanVienID = $("#hNhanVienID").val();
+            nhanVienID = parseInt(nhanVienID);
+
+            $.ajax({
+                url: '/api/nhanvien/' + nhanVienID,
+                contentType: "application/json; charset=utf-8;",
+                dataType: "json",
+                type: "DELETE",
+                success: function (data) {
+                    //alert("Hello");
+                    if (data.name != null) {
+
+                        $("#modalXoa").modal("hide")
+
+                        //Reload lại trang
+                        window.location.reload();
+                    } else {
+                        $('#title-delete').nextAll(".spanError").remove();
+                        $('#title-delete').after('<div class="alert alert-dismissible alert-danger spanError">' + data.name + '</div>')
+
+                    }
+
+                },
+                error: function (error) {
+                    alert("Có lỗi xảy ra " + error.name);
+                }
+            });
+        }
+    </script>
+</head>
+<body layout:fragment="content">
+<div class="page-breadcrumb bg-white">
+    <div class="row align-items-center">
+        <div class="col-lg-3 col-md-4 col-sm-4 col-xs-12">
+            <h4 class="page-title">Quản Lý nhân viên</h4>
+        </div>
+        <div class="col-lg-9 col-sm-8 col-md-8 col-xs-12">
+            <div class="d-md-flex">
+                <a href="#" onclick="hienThiThemMoi()" data-toggle="modal"
+                   data-target="#modalNhanVien"
+                   class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Thêm mới</a>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top: 1em">
+        <form action="#" th:action="@{/call-api/nhanvien/timkiem}" th:object="${nhanVienSearch}" method="post">
+            <div class="input-group">
+
+                <input placeholder="Tìm kiếm" type="search" id="form1" class="form-control" th:field="*{tuKhoa}"/>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+    <!-- /.col-lg-12 -->
+</div>
+<!-- ============================================================== -->
+<!-- End Bread crumb and right sidebar toggle -->
+<!-- ============================================================== -->
+<!-- ============================================================== -->
+<!-- Container fluid  -->
+<!-- ============================================================== -->
+<div class="container-fluid">
+    <!-- ============================================================== -->
+    <!-- Start Page Content -->
+    <!-- ============================================================== -->
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title">Quản Lý nhân viên</h3>
+                <div class="table-responsive">
+                    <table class="table text-nowrap">
+                        <thead>
+                            <tr>
+                                <th class="border-top-0">ID</th>
+                                <th class="border-top-0">Họ tên</th>
+                                <th class="border-top-0">Điện thoại</th>
+                                <th class="border-top-0">Email</th>
+                                <th class="border-top-0">Địa chỉ</th>
+                                <th class="border-top-0"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="nv : ${lstNhanVien}">
+                                <td>[[${nv.id}]]</td>
+                                <td>[[${nv.hoTen}]]</td>
+                                <td>[[${nv.dienThoai}]]</td>
+                                <td>[[${nv.email}]]</td>
+                                <td>[[${nv.diaChi}]]</td>
+                                <td>
+                                    <a data-toggle="modal" data-target="#modalNhanVien" href='#' th:attr="onclick=|suaThongTin(${nv.id})|" title='Sửa thông tin nhân viên'><i class='fas fa-edit'></i></a>
+                                    &nbsp;
+                                    <a href='#' data-toggle="modal" data-target="#modalXoa" title='Xóa thông tin nhân viên' th:attr="onclick=|xoaThongTin(${nv.id})|"><i class='fas fa-trash-alt'></i></a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- End PAge Content -->
+    <!-- ============================================================== -->
+    <!-- ============================================================== -->
+    <!-- Right sidebar -->
+    <!-- ============================================================== -->
+    <!-- .right-sidebar -->
+    <!-- ============================================================== -->
+    <!-- End Right sidebar -->
+    <!-- ============================================================== -->
+</div>
+
+<form id="modalNhanVien" method="post" class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">
+                    Thêm mới nhân viên</h5>
+                <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tile-body" id="tile-body">
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Tên nhân viên:
+                        </label>
+                        <div class="col-md-9">
+                            <input type="text" id="hoTen" name="hoTen" class="form-control"
+                                   placeholder="Nhập tên"/>
+                            <input type="hidden" id="hNhanVienID" name="hNhanVienID">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Điện thoại:
+                        </label>
+                        <div class="col-md-9">
+                            <input id="dienThoai" name="dienThoai" type="text" class="form-control"
+                                   placeholder="Nhập điện thoại"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Email:
+                        </label>
+                        <div class="col-md-9">
+                            <input id="email" name="email" type="text" class="form-control"
+                                   placeholder="Nhập địa chỉ email"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-md-3">
+                            Địa chỉ:
+                        </label>
+                        <div class="col-md-9">
+                            <textarea id="diaChi" name="diaChi" rows="4" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" onclick="themMoiHoacCapNhat()"
+                        class="btn btn-danger  d-none d-md-block pull-right ms-3 hidden-xs hidden-sm waves-effect waves-light text-white">Cập nhật</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<fieldset id="modalXoa"  class="modal fade">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Thông báo xoá</h5>
+                <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="tile-body" id="title-delete">
+
+                    <h3>Bạn có chắc chắn muốn xoá thông tin này không ?  </h3>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" onclick="thucHienXoa()" class="btn btn-primary">Đồng ý</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</fieldset>
+</body>
+</html>

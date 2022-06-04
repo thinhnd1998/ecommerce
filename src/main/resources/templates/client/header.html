@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body th:fragment="header">
+<div class="header-area">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8">
+        <div class="user-menu">
+          <ul>
+            <th:block th:if="${#session.getAttribute('userOnline1') != null}">
+              <li th:utext="${#session.getAttribute('userOnline')}">Tài khoản:</li>
+              <li><a th:href="@{/dang-xuat}">Đăng xuất</a></li>
+            </th:block>
+            <li><a th:href="@{/gio-hang/view}"><i class="fa fa-user"></i> Giỏ hàng</a></li>
+            <li th:if="${#session.getAttribute('userOnline1') == null}"><a th:href="@{/dang-nhap}"><i class="fa fa-user"></i> Đăng nhập</a></li>
+          </ul>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</div> <!-- End header area -->
+
+<div class="site-branding-area">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="logo">
+          <h1><a th:href="@{/trang-chu}"><img th:src="@{/client/img/logo.png}"></a></h1>
+        </div>
+      </div>
+
+      <div class="col-sm-6">
+        <div class="shopping-item">
+          <a th:href="@{/gio-hang/view}">Giỏ hàng <i class="fa fa-shopping-cart"></i> </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> <!-- End site branding area -->
+</body>
+</html>
